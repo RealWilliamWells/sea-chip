@@ -139,7 +139,7 @@ void chip8::decodeAndExecuteOpcode() {
 
                 default:
                     // TODO: Throw exception
-                    ;
+                    break;
             }
             break;
 
@@ -183,7 +183,7 @@ void chip8::decodeAndExecuteOpcode() {
             drawFlag = true;
             programCounter += 2;
         }
-            break;
+        break;
 
         case 'e':
             if (instruction[3] == 'e') {
@@ -202,8 +202,30 @@ void chip8::decodeAndExecuteOpcode() {
         case 'f':
             switch (instruction[3]) {
                 case '5':
-                    delayTimer = V[x];
-                    programCounter += 2;
+                    switch (instruction[2]) {
+                        case '1':
+                            delayTimer = V[x];
+                            programCounter += 2;
+                            break;
+
+                        case '5':
+                            for (int i = 0; i<=x; i++) {
+                                memory[indexRegister + (i+1)] = V[i];
+                            }
+                            programCounter += 2;
+                            break;
+
+                        case '6':
+                            for (int i = 0; i<=x; i++) {
+                                V[i] = memory[indexRegister + (i+1)];
+                            }
+                            programCounter += 2;
+                            break;
+
+                        default:
+                            // TODO: Throw Exception
+                            break;
+                    }
                     break;
 
                 case '8':
@@ -221,7 +243,19 @@ void chip8::decodeAndExecuteOpcode() {
                     indexRegister += fontSet[V[x]];
                     programCounter += 2;
                     break;
+
+                case '3':
+                    memory[indexRegister] = V[x] / 100;
+                    memory[indexRegister + 1] = (V[x] / 10) % 10;
+                    memory[indexRegister + 2] = (V[x] % 100) % 10;
+                    programCounter += 2;
+                    break;
             }
+            break;
+
+        default:
+            // TODO: Throw Exception
+            break;
     }
 }
 
