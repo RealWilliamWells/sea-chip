@@ -16,7 +16,9 @@ public:
     unsigned short indexRegister;
     unsigned short programCounter;
 
-    bool screen[64 * 32];
+    static const int screenLength = 64;
+    static const int screenHeight = 32;
+    bool screen[screenLength][screenHeight];
 
     unsigned char delayTimer;
     unsigned char soundTimer;
@@ -26,9 +28,11 @@ public:
 
     unsigned char keypad[16];
 
+    unsigned char fontSet[80];
+
     bool drawFlag;
 
-    void loadGame(std::string rom) {}
+    void loadGame(const char *rom);
 
     void emulateCycle();
 
@@ -36,7 +40,9 @@ public:
 
     void setKeys() {}
 
-    void executeOpcode();
+    void decodeAndExecuteOpcode();
+
+    void clearDisplay();
 };
 
 

@@ -9,7 +9,6 @@
 chip8 chip8;
 
 bool testChip8Opcodes() {
-    chip8.programCounter = 0;
     chip8.memory[chip8.programCounter] = 0xA2;
     chip8.memory[chip8.programCounter + 1] = 0xF0;
 
