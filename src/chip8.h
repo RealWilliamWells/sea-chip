@@ -26,7 +26,7 @@ public:
     unsigned short stack[16];
     unsigned short stackPointer;
 
-    unsigned char keypad[16];
+    bool keypad[16];
 
     unsigned char fontSet[80] =
             {

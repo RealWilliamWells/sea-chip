@@ -2,6 +2,7 @@
 // Created by william on 2020-10-24.
 //
 
+#include <iostream>
 #include "chip8.h"
 
 void chip8::clearDisplay() {
@@ -184,16 +185,14 @@ void chip8::decodeAndExecuteOpcode() {
 
         case 'e':
             if (instruction[3] == 'e') {
-                // TODO: Implement keyboard controls
-//                if (keyPressed() == V[x]) {
-//                    programCounter += 4;
-//                }
+                if (keypad[V[x]]) {
+                    programCounter += 2;
+                }
                 programCounter += 2;
             } else if (instruction[3] == '1') {
-                // TODO: Implement keyboard controls
-//                if (keyPressed() != V[x]) {
-//                    programCounter += 4;
-//                }
+                if (!keypad[V[x]]) {
+                    programCounter += 2;
+                }
                 programCounter += 2;
             } else if (opcode == 0x00E0) {
                 clearDisplay();
@@ -215,8 +214,9 @@ void chip8::decodeAndExecuteOpcode() {
                     break;
 
                 case 'a':
-//                    V[x] = getKey();
-                    programCounter += 2;
+                    if (keypad[V[x]]) {
+                        programCounter += 2;
+                    }
                     break;
 
                 case '5':
@@ -286,6 +286,11 @@ void chip8::decodeAndExecuteOpcode() {
 void chip8::emulateCycle() {
     opcode = memory[programCounter] << 8 | memory[programCounter + 1];
 
+    // DEBUG
+//    char instruction[8];
+//    sprintf(instruction, "%x", opcode);
+//    std::cout<<"Debug: "<<instruction<<"\n";
+
     decodeAndExecuteOpcode();
 
     if (delayTimer > 0) {
@@ -313,7 +318,8 @@ void chip8::initialize() {
     }
 
     for (int i = 0; i < 16; i++) {
-        keypad[i] = V[i] = 0;
+        V[i] = 0;
+        keypad[i] = false;
     }
 
     for (int i = 0; i < 4096; i++) {

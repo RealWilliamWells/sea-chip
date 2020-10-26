@@ -59,20 +59,90 @@ void drawGraphics() {
     chip8.drawFlag = false;
 }
 
+void setupInput() {
+    while (SDL_PollEvent( &e ) != 0) {
+        if (e.type == SDL_QUIT) {
+            quit = true;
+        } else if (e.type == SDL_KEYUP || e.type == SDL_KEYDOWN) {
+            bool keyUp = true;
+            if( e.type == SDL_KEYUP ) {
+                keyUp = false;
+            }
+
+            switch(e.key.keysym.sym) {
+                case SDLK_KP_0:
+                    chip8.keypad[0x0] = keyUp;
+                    break;
+
+                case SDLK_KP_1:
+                    chip8.keypad[0x01] = keyUp;
+                    break;
+
+                case SDLK_KP_2:
+                    chip8.keypad[0x02] = keyUp;
+                    break;
+
+                case SDLK_KP_3:
+                    chip8.keypad[0x03] = keyUp;
+                    break;
+
+                case SDLK_KP_4:
+                    chip8.keypad[0x04] = keyUp;
+                    break;
+
+                case SDLK_KP_6:
+                    chip8.keypad[0x06] = keyUp;
+                    break;
+
+                case SDLK_KP_7:
+                    chip8.keypad[0x07] = keyUp;
+                    break;
+
+                case SDLK_KP_8:
+                    chip8.keypad[0x08] = keyUp;
+                    break;
+
+                case SDLK_KP_9:
+                    chip8.keypad[0x09] = keyUp;
+                    break;
+
+                case SDLK_a:
+                    chip8.keypad[0x0A] = keyUp;
+                    break;
+
+                case SDLK_s:
+                    chip8.keypad[0x0B] = keyUp;
+                    break;
+
+                case SDLK_d:
+                    chip8.keypad[0x0C] = keyUp;
+                    break;
+
+                case SDLK_f:
+                    chip8.keypad[0x0D] = keyUp;
+                    break;
+
+                case SDLK_g:
+                    chip8.keypad[0x0E] = keyUp;
+                    break;
+
+                case SDLK_h:
+                    chip8.keypad[0x0F] = keyUp;
+                    break;
+            }
+        }
+    }
+}
+
 int main(int, char **) {
     setupGraphics();
-    //setupInput();
 
     chip8.initialize();
-    chip8.loadGame("../c8games/INVADERS");
+    chip8.loadGame("c8games/INVADERS");
 
     // Emulation loop
     while( !quit ) {
-        while (SDL_PollEvent( &e ) != 0) {
-            if (e.type == SDL_QUIT) {
-                quit = true;
-            }
-        }
+        setupInput();
 
         chip8.emulateCycle();
 
@@ -83,7 +153,7 @@ int main(int, char **) {
         //chip8.setKeys();
 
         // Set to run at 600hz
-        SDL_Delay(10/6);
+        SDL_Delay(10/4);
     }
 
     SDL_DestroyRenderer(renderer);

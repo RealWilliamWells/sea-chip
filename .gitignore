@@ -1,3 +1,11 @@
 cmake-build-debug
 .idea
 c8games/
+CMakeFiles/
+Makefile
+cmake_install.cmake
+CMakeCache.txt
+sea_chip
+test_sea_chip
+sea_chip.cbp
+test_sea_chip.cbp
