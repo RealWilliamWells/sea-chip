@@ -59,7 +59,7 @@ void drawGraphics() {
     chip8.drawFlag = false;
 }
 
-void setupInput() {
+void checkInput() {
     while (SDL_PollEvent( &e ) != 0) {
         if (e.type == SDL_QUIT) {
             quit = true;
@@ -142,15 +142,13 @@ int main(int, char **) {
 
     // Emulation loop
     while( !quit ) {
-        setupInput();
+        checkInput();
 
         chip8.emulateCycle();
 
         if(chip8.drawFlag) {
             drawGraphics();
         }
-
-        //chip8.setKeys();
 
         // Set to run at 600hz
         SDL_Delay(10/4);

@@ -56,8 +56,6 @@ public:
 
     void initialize();
 
-    void setKeys() {}
-
     void decodeAndExecuteOpcode();
 
     void clearDisplay();
