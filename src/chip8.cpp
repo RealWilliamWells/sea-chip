@@ -5,10 +5,11 @@
 #include "chip8.h"
 
 void chip8::clearDisplay() {
-    for (int i = 0; i<screenHeight; i++) {
-        for (int j = 0; j<screenLength; j++) {
-            screen[i][j] = false;
+    for (int i = 0; i<SCREEN_HEIGHT; i++) {
+        for (int j = 0; j<SCREEN_WIDTH; j++) {
+            screen[i][j] = 0;
         }
+        drawFlag = true;
     }
 }
 
@@ -23,42 +24,36 @@ void chip8::decodeAndExecuteOpcode() {
     sprintf(instruction, "%x", opcode);
 
     switch(instruction[0]) {
-        case '0':
-            if (instruction[3] == '0') {
-                clearDisplay();
-                programCounter += 2;
-            } else if (instruction[3] == 'e') {
-                programCounter = stack[stackPointer];
-                stackPointer--;
-            } else {
-                // TODO: Call machine code routine
-            }
-            break;
-
         case '1':
-            programCounter = opcode & 0x0FFF;
+            programCounter = nnn;
             break;
 
         case '2':
             stack[stackPointer] = programCounter;
             stackPointer++;
-            programCounter = opcode & 0x0FFF;
+            programCounter = nnn;
             break;
 
         case '3':
             if (V[x] == nn) {
+                programCounter += 4;
+            } else {
                 programCounter += 2;
             }
             break;
 
         case '4':
             if (V[x] != nn) {
+                programCounter += 4;
+            } else {
                 programCounter += 2;
             }
             break;
 
         case '5':
             if (V[x] == V[y]) {
+                programCounter += 4;
+            } else {
                 programCounter += 2;
             }
             break;
@@ -116,8 +111,8 @@ void chip8::decodeAndExecuteOpcode() {
                     break;
 
                 case '6':
-                    V[0xF] = V[x] & 1;
-                    V[x]>>=1;
+                    V[0xF] = V[x] & 0x1;
+                    V[x] >>= 1;
                     programCounter += 2;
                     break;
 
@@ -145,6 +140,8 @@ void chip8::decodeAndExecuteOpcode() {
 
         case '9':
             if (V[x] != V[y]) {
+                programCounter += 4;
+            } else {
                 programCounter += 2;
             }
             break;
@@ -172,10 +169,10 @@ void chip8::decodeAndExecuteOpcode() {
                 pixel = memory[indexRegister + yLine];
                 for (int xLine = 0; xLine < 8; xLine++) {
                     if ((pixel & (0x80 >> xLine)) != 0) {
-                        if (screen[x + xLine][y + yLine] == 1) {
+                        if (screen[V[x] + xLine][V[y] + yLine] == 1) {
                             V[0xF] = 1;
                         }
-                        screen[x + xLine][y + yLine] ^= 1;
+                        screen[V[x] + xLine][V[y] + yLine] ^= 1;
                     }
                 }
             }
@@ -189,18 +186,39 @@ void chip8::decodeAndExecuteOpcode() {
             if (instruction[3] == 'e') {
                 // TODO: Implement keyboard controls
 //                if (keyPressed() == V[x]) {
-//                    programCounter += 2;
+//                    programCounter += 4;
 //                }
-            } else {
+                programCounter += 2;
+            } else if (instruction[3] == '1') {
                 // TODO: Implement keyboard controls
 //                if (keyPressed() != V[x]) {
-//                    programCounter += 2;
+//                    programCounter += 4;
 //                }
+                programCounter += 2;
+            } else if (opcode == 0x00E0) {
+                clearDisplay();
+                programCounter += 2;
+            } else if (opcode == 0x00EE) {
+                stackPointer--;
+                programCounter = stack[stackPointer];
+                programCounter += 2;
+            } else {
+                //TODO: Implement error handling
             }
             break;
 
         case 'f':
             switch (instruction[3]) {
+                case '7':
+                    V[x] = delayTimer;
+                    programCounter += 2;
+                    break;
+
+                case 'a':
+//                    V[x] = getKey();
+                    programCounter += 2;
+                    break;
+
                 case '5':
                     switch (instruction[2]) {
                         case '1':
@@ -210,15 +228,17 @@ void chip8::decodeAndExecuteOpcode() {
 
                         case '5':
                             for (int i = 0; i<=x; i++) {
-                                memory[indexRegister + (i+1)] = V[i];
+                                memory[indexRegister + i] = V[i];
                             }
+                            indexRegister += x + 1;
                             programCounter += 2;
                             break;
 
                         case '6':
                             for (int i = 0; i<=x; i++) {
-                                V[i] = memory[indexRegister + (i+1)];
+                                V[i] = memory[indexRegister + i];
                             }
+                            indexRegister += x + 1;
                             programCounter += 2;
                             break;
 
@@ -234,13 +254,17 @@ void chip8::decodeAndExecuteOpcode() {
                     break;
 
                 case 'e':
+                    if (indexRegister + V[x] > 255) {
+                        V[0xF] = 1;
+                    } else {
+                        V[0xF] = 0;
+                    }
                     indexRegister += V[x];
                     programCounter += 2;
                     break;
 
                 case '9':
-                    // TODO: Will very likely need to be changed
-                    indexRegister += fontSet[V[x]];
+                    indexRegister = V[x] * 5;
                     programCounter += 2;
                     break;
 
@@ -282,28 +306,42 @@ void chip8::initialize() {
     indexRegister = 0;
     stackPointer = 0;
 
-    // Load font set
+    clearDisplay();
+
+    for (int i = 0; i < 16; i++) {
+        stack[i] = 0;
+    }
+
+    for (int i = 0; i < 16; i++) {
+        keypad[i] = V[i] = 0;
+    }
+
+    for (int i = 0; i < 4096; i++) {
+        memory[i] = 0;
+    }
+
     for (int i = 0; i < 80; i++) {
         memory[i] = fontSet[i];
     }
 }
 
 void chip8::loadGame(const char *rom) {
-    FILE * file;
+    FILE *file;
     file = fopen (rom,"rb");
-    fseek (file , 0 , SEEK_END);
-    long bufferSize = ftell (file);
-    rewind (file);
-    char * buffer = (char*) malloc (sizeof(char)*bufferSize);
 
-    if (buffer!=NULL)
-    {
+    fseek (file , 0 , SEEK_END);
+    long int bufferSize = ftell (file);
+    rewind(file);
+
+    unsigned char buffer[bufferSize];
+    fread(buffer, sizeof(unsigned char), bufferSize, file);
+    fclose (file);
+
+    if (buffer!=NULL) {
         for (int i = 0; i < bufferSize; ++i) {
             memory[i + 512] = buffer[i];
         }
     } else {
         // TODO: Throw exception
     }
-
-    fclose (file);
 }

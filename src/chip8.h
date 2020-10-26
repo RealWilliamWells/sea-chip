@@ -16,9 +16,9 @@ public:
     unsigned short indexRegister;
     unsigned short programCounter;
 
-    static const int screenLength = 64;
-    static const int screenHeight = 32;
-    bool screen[screenLength][screenHeight];
+    static const int SCREEN_WIDTH = 64;
+    static const int SCREEN_HEIGHT = 32;
+    unsigned char screen[SCREEN_WIDTH][SCREEN_HEIGHT];
 
     unsigned char delayTimer;
     unsigned char soundTimer;
