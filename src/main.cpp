@@ -8,10 +8,45 @@ chip8 chip8;
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
-bool quit = false;
 SDL_Event e;
 SDL_Window* window = NULL;
 SDL_Renderer* renderer;
+
+const int AMPLITUDE = 28000;
+const int SAMPLE_RATE = 44100;
+
+void audio_callback(void *user_data, Uint8 *raw_buffer, int bytes) {
+    Sint16 *buffer = (Sint16*)raw_buffer;
+    int length = bytes / 2;
+    int &sample_nr(*(int*)user_data);
+
+    for(int i = 0; i < length; i++, sample_nr++)
+    {
+        double time = (double)sample_nr / (double)SAMPLE_RATE;
+        buffer[i] = (Sint16)(AMPLITUDE * sin(2.0f * M_PI * 441.0f * time)); // render 441 HZ sine wave
+    }
+}
+
+void playBeep() {
+    int sample_nr = 0;
+
+    SDL_AudioSpec want;
+    want.freq = SAMPLE_RATE;
+    want.format = AUDIO_S16SYS;
+    want.channels = 1;
+    want.samples = 2048;
+    want.callback = audio_callback;
+    want.userdata = &sample_nr;
+
+    SDL_AudioSpec have;
+    SDL_OpenAudio(&want, &have);
+
+    SDL_PauseAudio(0);
+    SDL_Delay(50);
+    SDL_PauseAudio(1);
+
+    chip8.playBeep = false;
+}
 
 void setupGraphics() {
     SDL_Surface* screenSurface = NULL;
@@ -62,7 +97,7 @@ void drawGraphics() {
 void checkInput() {
     while (SDL_PollEvent( &e ) != 0) {
         if (e.type == SDL_QUIT) {
-            quit = true;
+            chip8.quit = true;
         } else if (e.type == SDL_KEYUP || e.type == SDL_KEYDOWN) {
             bool keyUp = true;
             if( e.type == SDL_KEYUP ) {
@@ -138,10 +173,14 @@ int main(int, char **) {
     setupGraphics();
 
     chip8.initialize();
-    chip8.loadGame("c8games/INVADERS");
+    chip8.loadGame("c8games/HIDDEN");
 
     // Emulation loop
-    while( !quit ) {
+    while( !chip8.quit ) {
+        if (chip8.playBeep) {
+            playBeep();
+        }
+
         checkInput();
 
         chip8.emulateCycle();
@@ -150,12 +189,13 @@ int main(int, char **) {
             drawGraphics();
         }
 
-        // Set to run at 600hz
+        // Set to run at 400hz
         SDL_Delay(10/4);
     }
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow( window );
+    SDL_CloseAudio();
 
     SDL_Quit();
     return 0;

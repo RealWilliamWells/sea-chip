@@ -134,7 +134,7 @@ void chip8::decodeAndExecuteOpcode() {
                     break;
 
                 default:
-                    // TODO: Throw exception
+                    handleOpcodeError(instruction);
                     break;
             }
             break;
@@ -202,7 +202,7 @@ void chip8::decodeAndExecuteOpcode() {
                 programCounter = stack[stackPointer];
                 programCounter += 2;
             } else {
-                //TODO: Implement error handling
+                handleOpcodeError(instruction);
             }
             break;
 
@@ -243,7 +243,7 @@ void chip8::decodeAndExecuteOpcode() {
                             break;
 
                         default:
-                            // TODO: Throw Exception
+                            handleOpcodeError(instruction);
                             break;
                     }
                     break;
@@ -278,7 +278,7 @@ void chip8::decodeAndExecuteOpcode() {
             break;
 
         default:
-            // TODO: Throw Exception
+            handleOpcodeError(instruction);
             break;
     }
 }
@@ -299,7 +299,7 @@ void chip8::emulateCycle() {
 
     if (soundTimer > 0) {
         if (soundTimer == 1) {
-            // TODO: Beep Sound!
+            playBeep = true;
         }
         soundTimer--;
     }
@@ -331,23 +331,32 @@ void chip8::initialize() {
     }
 }
 
-void chip8::loadGame(const char *rom) {
+void chip8::loadGame(char *rom) {
     FILE *file;
     file = fopen (rom,"rb");
 
+    // Get rom size
     fseek (file , 0 , SEEK_END);
     long int bufferSize = ftell (file);
     rewind(file);
 
+    // Read bytes of rom into unsigned character array
     unsigned char buffer[bufferSize];
     fread(buffer, sizeof(unsigned char), bufferSize, file);
     fclose (file);
 
-    if (buffer!=NULL) {
+    if (bufferSize>0) {
         for (int i = 0; i < bufferSize; ++i) {
             memory[i + 512] = buffer[i];
         }
     } else {
-        // TODO: Throw exception
+        freopen( "RomLoadErrorLog.txt", "w", stderr );
+        std::cerr<<"Error: failed to load rom!";
     }
+}
+
+void chip8::handleOpcodeError(char instruction[8]) {
+    freopen( "OpcodeError.txt", "w", stderr );
+    std::cerr<<"Error: Invalid opcode: "<<instruction<<"!";
+    quit = true;
 }

@@ -49,8 +49,10 @@ public:
             };
 
     bool drawFlag;
+    bool quit = false;
+    bool playBeep = true;
 
-    void loadGame(const char *rom);
+    void loadGame(char *rom);
 
     void emulateCycle();
 
@@ -59,6 +61,8 @@ public:
     void decodeAndExecuteOpcode();
 
     void clearDisplay();
+
+    void handleOpcodeError(char instruction[8]);
 };
 
 
