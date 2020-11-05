@@ -52,7 +52,7 @@ public:
     bool quit = false;
     bool playBeep = true;
 
-    void loadGame(char *rom);
+    void loadGame(std::string rom);
 
     void emulateCycle();
 

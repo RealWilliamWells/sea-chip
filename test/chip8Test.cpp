@@ -3,8 +3,7 @@
 //
 
 #include <iostream>
-#include "chip8Test.h"
-#include "../src/chip8.h"
+#include "../chip8/chip8.h"
 
 chip8 chip8;
 

@@ -6,7 +6,7 @@ include_directories(${SDL2_INCLUDE_DIRS})
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(sea_chip src/main.cpp src/chip8.cpp src/chip8.h)
+add_executable(sea_chip chip8/main.cpp chip8/chip8.cpp chip8/chip8.h)
 target_link_libraries(sea_chip ${SDL2_LIBRARIES})
 
-add_executable(test_sea_chip test/chip8Test.cpp test/chip8Test.h src/chip8.cpp src/chip8.h)
+add_executable(test_sea_chip test/chip8Test.cpp chip8/chip8.cpp chip8/chip8.h)

@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
+#include <string>
+
 #include "chip8.h"
 
 chip8 chip8;
@@ -169,11 +171,20 @@ void checkInput() {
     }
 }
 
+std::string selectRom() {
+    std::string fileName;
+
+    std::cin >> fileName;
+
+    return fileName;
+}
+
 int main(int, char **) {
+    std::string fileName = selectRom();
     setupGraphics();
 
     chip8.initialize();
-    chip8.loadGame("c8games/HIDDEN");
+    chip8.loadGame(fileName);
 
     // Emulation loop
     while( !chip8.quit ) {

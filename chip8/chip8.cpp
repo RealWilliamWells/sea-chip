@@ -3,6 +3,8 @@
 //
 
 #include <iostream>
+#include <cmath>
+
 #include "chip8.h"
 
 void chip8::clearDisplay() {
@@ -21,6 +23,9 @@ void chip8::decodeAndExecuteOpcode() {
 
     unsigned short nn = opcode & 0xFF;
     unsigned short nnn = opcode & 0x0FFF;
+
+    char number = V[x];
+    int bitPosition = 0;
 
     sprintf(instruction, "%x", opcode);
 
@@ -128,7 +133,7 @@ void chip8::decodeAndExecuteOpcode() {
                     break;
 
                 case 'e':
-                    V[0xF] = V[x] & 1;
+                    V[0xF] = ((V[x] & 0x80) != 0);
                     V[x]<<=1;
                     programCounter += 2;
                     break;
@@ -184,7 +189,14 @@ void chip8::decodeAndExecuteOpcode() {
         break;
 
         case 'e':
-            if (instruction[3] == 'e') {
+            if (opcode == 0x00E0) {
+                clearDisplay();
+                programCounter += 2;
+            } else if (opcode == 0x00EE) {
+                stackPointer--;
+                programCounter = stack[stackPointer];
+                programCounter += 2;
+            } else if (instruction[3] == 'e') {
                 if (keypad[V[x]]) {
                     programCounter += 2;
                 }
@@ -193,13 +205,6 @@ void chip8::decodeAndExecuteOpcode() {
                 if (!keypad[V[x]]) {
                     programCounter += 2;
                 }
-                programCounter += 2;
-            } else if (opcode == 0x00E0) {
-                clearDisplay();
-                programCounter += 2;
-            } else if (opcode == 0x00EE) {
-                stackPointer--;
-                programCounter = stack[stackPointer];
                 programCounter += 2;
             } else {
                 handleOpcodeError(instruction);
@@ -227,18 +232,24 @@ void chip8::decodeAndExecuteOpcode() {
                             break;
 
                         case '5':
+                            if (indexRegister + x > 4096) {
+                                x = 4096 - indexRegister;
+                            }
+
                             for (int i = 0; i<=x; i++) {
                                 memory[indexRegister + i] = V[i];
                             }
-                            indexRegister += x + 1;
                             programCounter += 2;
                             break;
 
                         case '6':
+                            if (indexRegister + x > 4096) {
+                                x = 4096 - indexRegister;
+                            }
+
                             for (int i = 0; i<=x; i++) {
                                 V[i] = memory[indexRegister + i];
                             }
-                            indexRegister += x + 1;
                             programCounter += 2;
                             break;
 
@@ -331,9 +342,9 @@ void chip8::initialize() {
     }
 }
 
-void chip8::loadGame(char *rom) {
+void chip8::loadGame(std::string rom) {
     FILE *file;
-    file = fopen (rom,"rb");
+    file = fopen (rom.c_str(),"rb");
 
     // Get rom size
     fseek (file , 0 , SEEK_END);
