@@ -8,8 +8,8 @@
 #include "chip8.h"
 
 void chip8::clearDisplay() {
-    for (int i = 0; i<SCREEN_HEIGHT; i++) {
-        for (int j = 0; j<SCREEN_WIDTH; j++) {
+    for (int i = 0; i<SCREEN_WIDTH; i++) {
+        for (int j = 0; j<SCREEN_HEIGHT; j++) {
             screen[i][j] = 0;
         }
         drawFlag = true;
@@ -175,10 +175,10 @@ void chip8::decodeAndExecuteOpcode() {
                 pixel = memory[indexRegister + yLine];
                 for (int xLine = 0; xLine < 8; xLine++) {
                     if ((pixel & (0x80 >> xLine)) != 0) {
-                        if (screen[V[x] + xLine][V[y] + yLine] == 1) {
+                        if (screen[((V[x] + xLine) % SCREEN_WIDTH)][((V[y] + yLine) % SCREEN_HEIGHT)] == 1) {
                             V[0xF] = 1;
                         }
-                        screen[V[x] + xLine][V[y] + yLine] ^= 1;
+                        screen[((V[x] + xLine) % SCREEN_WIDTH)][((V[y] + yLine) % SCREEN_HEIGHT)] ^= 1;
                     }
                 }
             }
@@ -298,6 +298,7 @@ void chip8::emulateCycle() {
     opcode = memory[programCounter] << 8 | memory[programCounter + 1];
 
     // DEBUG
+//    freopen( "OpcodeDebug.txt", "w", stderr );
 //    char instruction[8];
 //    sprintf(instruction, "%x", opcode);
 //    std::cout<<"Debug: "<<instruction<<"\n";

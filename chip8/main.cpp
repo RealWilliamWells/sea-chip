@@ -107,51 +107,55 @@ void checkInput() {
             }
 
             switch(e.key.keysym.sym) {
-                case SDLK_KP_0:
+                case SDLK_b:
                     chip8.keypad[0x0] = keyUp;
                     break;
 
-                case SDLK_KP_1:
+                case SDLK_z:
                     chip8.keypad[0x01] = keyUp;
                     break;
 
-                case SDLK_KP_2:
+                case SDLK_x:
                     chip8.keypad[0x02] = keyUp;
                     break;
 
-                case SDLK_KP_3:
+                case SDLK_c:
                     chip8.keypad[0x03] = keyUp;
                     break;
 
-                case SDLK_KP_4:
+                case SDLK_a:
                     chip8.keypad[0x04] = keyUp;
                     break;
 
-                case SDLK_KP_6:
-                    chip8.keypad[0x06] = keyUp;
-                    break;
-
-                case SDLK_KP_7:
-                    chip8.keypad[0x07] = keyUp;
-                    break;
-
-                case SDLK_KP_8:
-                    chip8.keypad[0x08] = keyUp;
-                    break;
-
-                case SDLK_KP_9:
-                    chip8.keypad[0x09] = keyUp;
-                    break;
-
-                case SDLK_a:
-                    chip8.keypad[0x0A] = keyUp;
-                    break;
-
                 case SDLK_s:
-                    chip8.keypad[0x0B] = keyUp;
+                    chip8.keypad[0x05] = keyUp;
                     break;
 
                 case SDLK_d:
+                    chip8.keypad[0x06] = keyUp;
+                    break;
+
+                case SDLK_q:
+                    chip8.keypad[0x07] = keyUp;
+                    break;
+
+                case SDLK_w:
+                    chip8.keypad[0x08] = keyUp;
+                    break;
+
+                case SDLK_e:
+                    chip8.keypad[0x09] = keyUp;
+                    break;
+
+                case SDLK_r:
+                    chip8.keypad[0x0A] = keyUp;
+                    break;
+
+                case SDLK_t:
+                    chip8.keypad[0x0B] = keyUp;
+                    break;
+
+                case SDLK_y:
                     chip8.keypad[0x0C] = keyUp;
                     break;
 
@@ -174,6 +178,7 @@ void checkInput() {
 std::string selectRom() {
     std::string fileName;
 
+    std::cout<<"Please enter path to rom to load: ";
     std::cin >> fileName;
 
     return fileName;
@@ -181,6 +186,7 @@ std::string selectRom() {
 
 int main(int, char **) {
     std::string fileName = selectRom();
+
     setupGraphics();
 
     chip8.initialize();

@@ -9,3 +9,5 @@ sea_chip
 test_sea_chip
 sea_chip.cbp
 test_sea_chip.cbp
+OpcodeDebug.txt
+OpcodeError.txt
