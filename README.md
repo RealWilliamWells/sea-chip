@@ -2,8 +2,7 @@
 Another C++ implementation of a chip-8 interpreter.
 
 **Usage**
-1. Ensure that the SDL2 libraries are installed on your system.
-2. Build with CMake.
-3. Run resulting excutable.
-4. Type in path to desired rom from directory of excutable.
-5. Profit?!?!?!
+1. Ensure that the SDL2 libraries and cmake are installed on your system.
+2. Compile with CMake by running `cmake CMakeLists.txt` then `make`.
+3. Run resulting executable with a path to a rom as an argument or enter the path after executing.
+4. Profit?!?!?!
