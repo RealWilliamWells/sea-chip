@@ -184,8 +184,13 @@ std::string selectRom() {
     return fileName;
 }
 
-int main(int, char **) {
-    std::string fileName = selectRom();
+int main(int argCount, char *argv[]) {
+    std::string fileName;
+    if (argCount < 2) {
+        fileName = selectRom();
+    } else {
+        fileName = argv[1];
+    }
 
     setupGraphics();
 
